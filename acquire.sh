@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+
+cd other_repos
+
+if ! [ -e libimobiledevice ]
+then
+	git clone https://github.com/libimobiledevice/libimobiledevice
+	cd libimobiledevice/
+	git checkout 0bf0f9e941c85d06ce4b5909d7a61b3a4f2a6a05
+	./autogen.sh
+	make -j3
+	cd ..
+fi
+
+if ! [ -e primepwn ]
+then
+	git clone https://github.com/LukeZGD/primepwn
+	cd primepwn
+	git checkout 02d4f7bb0478fd401187b1142d4c965e4d3acc70
+	echo 'XQAAgAD//////////wAW6AQNp5MiqdGiG5emIt0zhK3sN60zPkM3EytixETdSu+N7Knjkkokc8EvDC9IZc4KjWcbsoy1luP8+Z1ru/jt0SnzJbPolzttHDtY4ocho+CvVCzXEgy7R1YMuzQpOvR7hCbFzAAhi6hJEPxtNcHQm5kurGO2BOe65FPpOTu3KOa6Fy7kaBK/GJulUXbiZda2FT49917NnRsyryEMb8Ok0v16oMsb6K/bxYGuTWwKTTcMu8GZvyTrwTkbVdIhS9OFbfK68zw9njzR1HNmCUPw2SZ01Vzo8ia4HvtGVdLw/iynlDDny+/yuSh5SlVxE8RHGdhIZHIYmQ35wZQdXagS34pvqxcu3OEBEuAcLIHj5YeSPT/Hh64KMbOV7567gAgF1sBmGURRPWJINNZtHsBm11BgNJUcNW+f7nOxrQo64Wg/gi3K7zQQ6OZqu/9NhhdTMXILm/9vHvFhTRiG6vkutQxq/ZZ4ZN+13ELG/a2/vm4YrnqyxFl0bl4CcG6YFs5fnn+njYqfR3Mui+Oh053tbqeiKPm2vxdlKAZhy/a6tff+IDqIgogIOsLc9pcU7zwh8yeRFRtEcw4H1nzBjYYbWMND6gtSF6L8aNgnMm8Io6+pJe0N/qmIEEayFKLXXveNSzbl8qtDZyGXeifFlEHz1kZ9b+Yp7rIlwFOF3fIzOwD9GO9O+PtH7fuci/ybg0rdmceqFclA2g+DGOFj/AmF7RsLbGnEV72937O7UxucHhBkIJc3B3+1/XzqjrmJcFNUpgMrRXF63MIhTuOD0PwWz/kxyzhnQxNbLfeiQjzv3gTqk1YRAPJhiFfbR3W4pzQ6It4ebw8yB4e3WnElw86b411C23zLtAW/p25BvBbvv2ovqptx/0btUvrYEq6u1s9WI0M9llFdgR6SBU8LrM1+sFMkgQe+sJrGYVRonQ7LZTGO8fkWGI58rBZVEdSPfaCo6sLWX57W/kXOWdz16ZlaIOTvJzP1YCiD6xBBm93I6EiqhIk8hZM7TmXccazSN8Ze3PZwuiEEcfcEcPQJ7QB+TObKP0v15tiwRyQsLpA0HHuCng+d+ow0y9Z+djTR+GzIvJF6P2pldvEYDN+jIg2ooTUgC60kMPmwDYMva+KQg2En7e/19UJizygFj1zq2+SA95aiqJ25BfSZytfzlyFjJEclwiqxWFnKpS0vR7gPeCPSB6TfUvxSKHiBq8Z3UKm1wh8f0uMFlzI9zdew5rRPjq07tJ3j06xjOP2yX3eJz74j5WhYP1vS34FsAlEugoXD6on3oM74cApM1VP2fFJ8s6o7s7C6R9vHG/NNvoho1A17FQtPF6I/UnDkuD2oQSCy/GuIpLGmc9YiFPUGZ9TjfMIF3Si14DlING84cvqeIgaaJ6EL5v7ela8v1cGmpU97PivPfV+Vyr24sNangt9BVnqDBD4MA4j1volDx+arBisxqGVU6h2LCZgo3FVY5xxrLLK2CwCXU+ra7udoi3cIB7U6oWRfZ9OzaU78KojTNjAkN5Rn1cXrk7l5ARFuO5Qkq1yIZwxGXP21grM5bZzmbzgigJCrSUvJY+6Ev7Yswo9QeyNKKIJ0U22qEoWg1gUWqr0pHTYvMkhmYUWDeTZo9cev8d860SpEIMFZ7vR/wa/9h/oqWDCz3r/W/48m7UWnknDH/UlgH+j3cN01eRMnNNAziRe4Jq366zn486Vo/6bC1c4=' | base64 -d |lzma -d |  patch -p0
+
+	./compile.sh
+	cd ..
+fi
+
+if ! [ -e libirecovery ]
+then
+	git clone https://github.com/libimobiledevice/libirecovery
+	cd libirecovery
+	git checkout 638056a593b3254d05f2960fab836bace10ff105
+	./autogen.sh
+	./configure
+	make -j3
+	cd ..
+fi
