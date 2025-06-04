@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eu
 
+BUILD=10B500
+ipod4_ipsw=$(cat builds/"$BUILD"/url)
+json_keyfile=builds/"$BUILD"/index.html
+
 cd other_repos
 
 if ! [ -e libimobiledevice ]
@@ -34,3 +38,120 @@ then
 	make -j3
 	cd ..
 fi
+
+if ! [ -e iBoot32Patcher ]
+then
+	git clone https://github.com/iH8sn0w/iBoot32Patcher
+	cd iBoot32Patcher
+	git checkout 77ab155cb418d67f688e2e85f3e83c77a2431660
+	clang iBoot32Patcher.c finders.c functions.c patchers.c -Wno-multichar -I. -o iBoot32Patcher
+	cd ..
+fi
+
+if ! [ -e xpwn ]
+then
+	git clone https://github.com/malus-security/xpwn -b testing
+	cd xpwn
+	echo 'XQAAgAD//////////wAyGkkJwvwRfVDeCk9H1035Ev/ES/io9MOpK8LIvaHA55pdrKDHKLE8jowgaPUD7bLlo2o7cHSRIzbGcB0jmybgMfWnpYElIFJJ4F9+U2nq57Xla1XNKxYCM2ZeF0Nm15DCf8BMC2PsVY73/W/kBIXLskazJAQJoaC6lQglHanZ+IupI8Lw+7dxO1S0uE7xbMFz7aqp+mWflZtrAuwm+7yXA+/G2TzBQd8/827ZwJIRYOHTfby7u13FmhlxhZ+WHf83nHuVcep5JSrunUliHv9swAu8c7YAhEk2CvZUjFqM4rWPeztUltD1TH/Y3Q60wMmfZujT/6mGPCp0w4W0+tuCeIExRoFqK1Fh5Lyi3EiK3Yun/A4M7CBmDMIT2FBDGnQ5MQZhYc7rv1Hpe8fASSJocvv7y3CmkY/nDJ9hcQ9bhz0XuClwa3+tunK/HALD/NKLz7/Z7a208hVQ6HRntitdho6zLSJ1wpQnW7kGo1YGIutT+EEa0keeNpeExHss9yeUqy9liVs5tcYwaqh9lm2+b6DF7JrHklIJMSBefOjRxr7+DEIrQpbWios9reO7jPsbftRD/lODwB92daDrdltwFTksAnBQznb+gSRroABDY4gwTKz9tBNd29HaUUXqw6YQrav5Xm9QQso/oRTsPnNDjhRidm7VklpMziQQYESzkjU2FIyB/zi+p6Gno83wX2lDPUpRzG7wg06i+UwFMhncbokKta3nu5VEDY8L6sXm+WSFL4lycJNyI+3nQGzxwwOerzChM2NhXVZ1VTrdcn0JcYqJvK+4Jbk8/D1/KIGLHBFuq2IFbHJgGxz3QlBmctCE048GKEctN4iEfSYQZp/P9fWu16rlXwn/w5Toxw==' | base64 -d | lzma -d | patch -p1
+	mkdir build
+	cd build
+	cmake ..
+	make -j3
+	cd ../..
+fi
+
+#if ! [ -e bsdiff ]
+#then
+#	git clone https://github.com/mendsley/bsdiff
+#	cd bsdiff
+#	./autogen.sh
+#	./configure
+#	make -j3
+#	cd ..
+#fi
+
+cd ../bins
+
+##########################################
+## Get Apple's IPSW that has the bootloader kernel and ramdisk
+##########################################
+
+IPSW_FILENAME="$(basename "$ipod4_ipsw")"
+if ! [ -e "$IPSW_FILENAME" ]
+then
+	wget "$ipod4_ipsw"
+fi
+
+if ! [ -e extracted_ipsw ]
+then
+	mkdir extracted_ipsw
+	cd extracted_ipsw
+	7z x ../"$IPSW_FILENAME"  -y
+	cd ..
+fi
+
+cd ..
+
+##########################################
+## Decrypt the components
+##########################################
+
+if ! [ -e bins/decrypted_components ]
+then
+	mkdir bins/decrypted_components
+	for component in iBSS iBEC DeviceTree kernelcache
+	do
+		if ! [ -e work/decrypted_apple_"$component" ]
+		then
+			#Get Apple's keys
+			iv=$( jq -r '.keys[] | select(.image == "'"$component"'") | .iv' < "$json_keyfile" )
+			key=$( jq -r '.keys[] | select(.image == "'"$component"'") | .key' < "$json_keyfile" )
+
+			#Find the file
+			for i in bins/extracted_ipsw/Firmware/dfu/"$component".n81ap.RELEASE.dfu bins/extracted_ipsw/Firmware/all_flash/all_flash.n81ap.production/"$component".n81ap.img3 bins/extracted_ipsw/"$component".release.n81 end
+			do
+				if [ "$i" = end ]
+				then
+					echo "Couldn't find file for $component"
+					exit 1
+				elif [ -e "$i" ]
+				then
+					#Decrypt it
+					other_repos/xpwn/build/ipsw-patch/xpwntool "$i" bins/decrypted_components/apple_decrypted_"$component" -iv "$iv" -k "$key" -decrypt
+					break
+				fi
+			done
+		fi
+	done
+fi
+
+##########################################
+## Remove checks from the iBSS bootloader
+##########################################
+
+if ! [ -e bins/hacked_components ]
+then
+	mkdir bins/hacked_components
+	for component in iBSS iBEC
+	do
+		DECRYPTED_iBSS=bins/decrypted_components/apple_decrypted_"$component"
+		      RAW_iBSS=bins/hacked_components/apple_decrypted_"$component".raw
+		   HACKED_iBSS=bins/hacked_components/hacked_"$component".raw
+		 BOOTABLE_iBSS=bins/hacked_components/hacked_"$component"
+
+		other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_iBSS" "$RAW_iBSS"
+
+		if [ "$component" = "iBEC" ]
+		then
+			bootargs="rd=md0 -v amfi=0xff amfi_get_out_of_my_way=1 cs_enforcement_disable=1 pio-error=0"
+		else
+			bootargs=""
+		fi
+
+		other_repos/iBoot32Patcher/iBoot32Patcher "$RAW_iBSS" "$HACKED_iBSS" --rsa --debug -b "$bootargs"
+
+		other_repos/xpwn/build/ipsw-patch/xpwntool "$HACKED_iBSS" "$BOOTABLE_iBSS" -t "$DECRYPTED_iBSS"
+	done
+fi
+
+echo All fetched correctly
