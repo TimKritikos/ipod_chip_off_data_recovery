@@ -106,33 +106,35 @@ cd ..
 ## Decrypt the components
 ##########################################
 
+#[input file location in ipsw] [name in keyfile]
+decrypt(){
+	infile=bins/extracted_ipsw/"$1"
+	name="$2"
+	outfile=bins/decrypted_components/"$name"
+
+	iv=$( jq -r '.keys[] | select(.image == "'"$name"'") | .iv' < "$json_keyfile" )
+	key=$( jq -r '.keys[] | select(.image == "'"$name"'") | .key' < "$json_keyfile" )
+
+	if [ "$iv" = "" ] || [ "$key" = "" ]
+	then
+		p 'Error, couldnt find key for component '"$name"
+	fi
+
+	other_repos/xpwn/build/ipsw-patch/xpwntool "$infile" "$outfile" -iv "$iv" -k "$key" -decrypt
+}
+
 if ! [ -e bins/decrypted_components ]
 then
 	mkdir bins/decrypted_components
-	for component in iBSS iBEC DeviceTree Kernelcache
-	do
-		if ! [ -e work/decrypted_apple_"$component" ]
-		then
-			#Get Apple's keys
-			iv=$( jq -r '.keys[] | select(.image == "'"$component"'") | .iv' < "$json_keyfile" )
-			key=$( jq -r '.keys[] | select(.image == "'"$component"'") | .key' < "$json_keyfile" )
 
-			#Find the file
-			for i in bins/extracted_ipsw/Firmware/dfu/"$component".n81ap.RELEASE.dfu bins/extracted_ipsw/Firmware/all_flash/all_flash.n81ap.production/"$component".n81ap.img3 bins/extracted_ipsw/"$(echo $component | tr K k)".release.n81 end
-			do
-				if [ "$i" = end ]
-				then
-					echo "Couldn't find file for $component"
-					exit 1
-				elif [ -e "$i" ]
-				then
-					#Decrypt it
-					other_repos/xpwn/build/ipsw-patch/xpwntool "$i" bins/decrypted_components/apple_decrypted_"$component" -iv "$iv" -k "$key" -decrypt
-					break
-				fi
-			done
-		fi
-	done
+	ramdisk_filename=$(jq < builds/10B500/index.html '.keys[] | select(.image=="RestoreRamdisk").filename' -r)
+
+	decrypt Firmware/dfu/iBSS.n81ap.RELEASE.dfu                                    iBSS
+	decrypt Firmware/dfu/iBEC.n81ap.RELEASE.dfu                                    iBEC
+	decrypt Firmware/all_flash/all_flash.n81ap.production/DeviceTree.n81ap.img3    DeviceTree
+	decrypt kernelcache.release.n81                                                Kernelcache
+	decrypt "$ramdisk_filename"                                                    RestoreRamdisk
+
 fi
 
 ##########################################
