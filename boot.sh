@@ -44,11 +44,11 @@ p 'Entering pwndfu with primepwn'
 other_repos/primepwn/tmp/libirecovery/tools/primepwn
 
 p 'Uploading hacked iBSS'
-other_repos/libirecovery/tools/irecovery -f /home/user/customhacks/bins/hacked_components/hacked_iBSS
+other_repos/libirecovery/tools/irecovery -f bins/hacked_components/hacked_iBSS
 p 'Uploading hacked iBEC'
-other_repos/libirecovery/tools/irecovery -f /home/user/customhacks/bins/hacked_components/hacked_iBEC
+other_repos/libirecovery/tools/irecovery -f bins/hacked_components/hacked_iBEC
 
-for i in 1 2 3 4 5 6 7 END
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 END
 do
 	if ! lsusb | grep Recovery\ Mode  > /dev/null
 	then
@@ -65,7 +65,12 @@ done
 
 p "Successfully booted to iBEC that has no verification checks"
 
-#TODO: load ramdisk
+p "Sending the ramdisk"
+other_repos/libirecovery/tools/irecovery -f bins/hacked_components/Ramdisk
+p "Activating ramdisk"
+other_repos/libirecovery/tools/irecovery -c "getenv ramdisk-delay"
+other_repos/libirecovery/tools/irecovery -c ramdisk
+sleep 2
 
 p "Sending Apple's Device Tree"
 other_repos/libirecovery/tools/irecovery -f bins/decrypted_components/apple_decrypted_DeviceTree

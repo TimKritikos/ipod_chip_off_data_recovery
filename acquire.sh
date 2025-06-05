@@ -110,7 +110,7 @@ cd ..
 decrypt(){
 	infile=bins/extracted_ipsw/"$1"
 	name="$2"
-	outfile=bins/decrypted_components/"$name"
+	outfile=bins/decrypted_components/apple_decrypted_"$name"
 
 	iv=$( jq -r '.keys[] | select(.image == "'"$name"'") | .iv' < "$json_keyfile" )
 	key=$( jq -r '.keys[] | select(.image == "'"$name"'") | .key' < "$json_keyfile" )
@@ -144,6 +144,9 @@ fi
 if ! [ -e bins/hacked_components ]
 then
 	mkdir bins/hacked_components
+
+	# Remove security checks from iBSS and iBEC
+
 	for component in iBSS iBEC
 	do
 		DECRYPTED_iBSS=bins/decrypted_components/apple_decrypted_"$component"
@@ -164,6 +167,19 @@ then
 
 		other_repos/xpwn/build/ipsw-patch/xpwntool "$HACKED_iBSS" "$BOOTABLE_iBSS" -t "$DECRYPTED_iBSS"
 	done
+
+	# Hack the ramdisk to run device_infos ASAP to get the key!
+
+	DECRYPTED_RAMDISK=bins/decrypted_components/apple_decrypted_RestoreRamdisk
+	WORK_IN_PROGRESS_RAMDISK=bins/hacked_components/Ramdisk.raw
+	HACKED_RAMDISK=bins/hacked_components/Ramdisk
+
+	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_RAMDISK" "$WORK_IN_PROGRESS_RAMDISK"
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" grow 30000000
+	#TODO: compile our own device_infos ( this comes from a newish project for brute forcing passcodes longer that 4 digits on device )
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add bins/device_infos Private/etc/rc.boot
+	other_repos/xpwn/build/ipsw-patch/xpwntool "$WORK_IN_PROGRESS_RAMDISK" "$HACKED_RAMDISK" -t "$DECRYPTED_RAMDISK"
 fi
+
 
 echo All fetched correctly
