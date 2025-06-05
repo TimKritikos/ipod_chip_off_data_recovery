@@ -1,3 +1,10 @@
 #!/bin/sh
 set -eu
-rm -rf other_repos/* bins/*
+
+cd "$(dirname "$(realpath "$0")")"
+
+rm -rf other_repos/*
+
+mv bins/device_infos .
+rm -rf bins/*
+mv  device_infos bins/
