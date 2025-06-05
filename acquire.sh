@@ -50,9 +50,17 @@ fi
 
 if ! [ -e xpwn ]
 then
-	git clone https://github.com/malus-security/xpwn -b testing
+	#git clone https://github.com/malus-security/xpwn -b testing
+	#cd xpwn
+	#echo 'XQAAgAD//////////wAyGkkJwvwRfVDeCk9H1035Ev/ES/io9MOpK8LIvaHA55pdrKDHKLE8jowgaPUD7bLlo2o7cHSRIzbGcB0jmybgMfWnpYElIFJJ4F9+U2nq57Xla1XNKxYCM2ZeF0Nm15DCf8BMC2PsVY73/W/kBIXLskazJAQJoaC6lQglHanZ+IupI8Lw+7dxO1S0uE7xbMFz7aqp+mWflZtrAuwm+7yXA+/G2TzBQd8/827ZwJIRYOHTfby7u13FmhlxhZ+WHf83nHuVcep5JSrunUliHv9swAu8c7YAhEk2CvZUjFqM4rWPeztUltD1TH/Y3Q60wMmfZujT/6mGPCp0w4W0+tuCeIExRoFqK1Fh5Lyi3EiK3Yun/A4M7CBmDMIT2FBDGnQ5MQZhYc7rv1Hpe8fASSJocvv7y3CmkY/nDJ9hcQ9bhz0XuClwa3+tunK/HALD/NKLz7/Z7a208hVQ6HRntitdho6zLSJ1wpQnW7kGo1YGIutT+EEa0keeNpeExHss9yeUqy9liVs5tcYwaqh9lm2+b6DF7JrHklIJMSBefOjRxr7+DEIrQpbWios9reO7jPsbftRD/lODwB92daDrdltwFTksAnBQznb+gSRroABDY4gwTKz9tBNd29HaUUXqw6YQrav5Xm9QQso/oRTsPnNDjhRidm7VklpMziQQYESzkjU2FIyB/zi+p6Gno83wX2lDPUpRzG7wg06i+UwFMhncbokKta3nu5VEDY8L6sXm+WSFL4lycJNyI+3nQGzxwwOerzChM2NhXVZ1VTrdcn0JcYqJvK+4Jbk8/D1/KIGLHBFuq2IFbHJgGxz3QlBmctCE048GKEctN4iEfSYQZp/P9fWu16rlXwn/w5Toxw==' | base64 -d | lzma -d | patch -p1
+	#mkdir build
+	#cd build
+	#cmake ..
+	#make -j3
+	#cd ../..
+	git clone https://github.com/LukeeGD/xpwn
 	cd xpwn
-	echo 'XQAAgAD//////////wAyGkkJwvwRfVDeCk9H1035Ev/ES/io9MOpK8LIvaHA55pdrKDHKLE8jowgaPUD7bLlo2o7cHSRIzbGcB0jmybgMfWnpYElIFJJ4F9+U2nq57Xla1XNKxYCM2ZeF0Nm15DCf8BMC2PsVY73/W/kBIXLskazJAQJoaC6lQglHanZ+IupI8Lw+7dxO1S0uE7xbMFz7aqp+mWflZtrAuwm+7yXA+/G2TzBQd8/827ZwJIRYOHTfby7u13FmhlxhZ+WHf83nHuVcep5JSrunUliHv9swAu8c7YAhEk2CvZUjFqM4rWPeztUltD1TH/Y3Q60wMmfZujT/6mGPCp0w4W0+tuCeIExRoFqK1Fh5Lyi3EiK3Yun/A4M7CBmDMIT2FBDGnQ5MQZhYc7rv1Hpe8fASSJocvv7y3CmkY/nDJ9hcQ9bhz0XuClwa3+tunK/HALD/NKLz7/Z7a208hVQ6HRntitdho6zLSJ1wpQnW7kGo1YGIutT+EEa0keeNpeExHss9yeUqy9liVs5tcYwaqh9lm2+b6DF7JrHklIJMSBefOjRxr7+DEIrQpbWios9reO7jPsbftRD/lODwB92daDrdltwFTksAnBQznb+gSRroABDY4gwTKz9tBNd29HaUUXqw6YQrav5Xm9QQso/oRTsPnNDjhRidm7VklpMziQQYESzkjU2FIyB/zi+p6Gno83wX2lDPUpRzG7wg06i+UwFMhncbokKta3nu5VEDY8L6sXm+WSFL4lycJNyI+3nQGzxwwOerzChM2NhXVZ1VTrdcn0JcYqJvK+4Jbk8/D1/KIGLHBFuq2IFbHJgGxz3QlBmctCE048GKEctN4iEfSYQZp/P9fWu16rlXwn/w5Toxw==' | base64 -d | lzma -d | patch -p1
+	echo 'H4sIAAAAAAAAA51VbW/iRhD+jH/FSJUqgl+wwUAQl9NxwHFUJJGAVqmqylp7x2Z1xrbsJSFX3X/v7hoI4CQ9FVl4PDszO/PsM7OUhSGYZsQ4kCYNt+aWs1gK1hr8C4XGEoo78PH6mrRbltVtOdgiNji23XVdzTTNSgxN1/VqnE+fwHRs1+iALl8uCEWwJnkDxLpXcMLR46kQcpZEdWAJB6WEq4EGGgRpUnDlAI2Dw7Y48Tg4bAvlYMpviv42El+/YEJZqNFX6y7IpidTDE5zPir39ZNeq91xZP2B37dD5436X9wuMHhZkDi0bKMLuvjvCRREehRDliDce59nd8PFn2AfUwZNxx3HPIHTepoNDaAhn9Fi1G4JcChCzrIMKaSixjpJKBBKMo70CsI83QBfI3yPmW86lmO1gTIJmy9ySxPwn+E3JIkZp9sMpoTF8TPICLck/wZDGmNulftB4xxDlhVPZkZ4sG6K0LvsKVEovqbe4xiSjt8OBY4UMeh28RzHVx1LJF9dkli6AkTdPSDJkiDeCjA+lKyw1h8leeZpdItFQSIckTj2SfAN4jQ6yAPNVLySiJMkEYYDTYeKSp3ANE59Eot4c3zEWDFTqmebqD3GIH/O+JwInt7AavH7ZCAOCr4M58sJhGkOH26gR9quY6hFpfooVIHjutBovonsI4kZFY1wCe2L/tCjThC6nZ5l9brdTsv138T2xLMC7smaYmr/2ugLqqqX7FhZYnpLIhbUHzp2Hxo724C95ByllqFBTf7kt7dc3S8m3mj1AI2A7wQ451ovwae6bNpLD0KpF2DO6wVPczRgZ/+UlSOsTGXFRCtc7MUSxuu/ijQMONi3DLCv4OYGnCv4Z+95kbhXIPfCmETF3lct/+F9mQ+n3mx6p8wWs9VsNJwfd3/Z/hFzFj6XWUr/l930d/N8J039P9L8iSz1d7I8S7KEvFbbJgWLEjFjVG9s6F/Lr0NvPJtOlitvPrmbrr7+PTgay7AZyTkj8ZhFWPDTSLVmEx4eHuAJIUERkKcQxiyDyWg2BtWfPor+QFiTYi36WHGx7Tiy18vX/+BirfbjKOWPgoaL5XBfdP1uNvaKNRFeG2pApS4D8oIsWTQmnBzkOSZKPHJShH+dPEEspus2K49+8MbRHYxKGzjL98Q0zBFLph+sfpxPDjkam0UeNMsZmWWivyu6/cQQ86Hdwb5luaEd9IPwfGJUvcppUdWru10dzv5sNNgW4tggIRssMhIgMD9NxT02qK4UnKoLuzqD9zdfdRJr8JgyCivBqs/PHO9zinn9ShME+xcPszPx2wgAAA==' | base64 -d | gzip -d | patch -p1
 	mkdir build
 	cd build
 	cmake ..
@@ -99,7 +107,7 @@ cd ..
 if ! [ -e bins/decrypted_components ]
 then
 	mkdir bins/decrypted_components
-	for component in iBSS iBEC DeviceTree kernelcache
+	for component in iBSS iBEC DeviceTree Kernelcache
 	do
 		if ! [ -e work/decrypted_apple_"$component" ]
 		then
@@ -108,7 +116,7 @@ then
 			key=$( jq -r '.keys[] | select(.image == "'"$component"'") | .key' < "$json_keyfile" )
 
 			#Find the file
-			for i in bins/extracted_ipsw/Firmware/dfu/"$component".n81ap.RELEASE.dfu bins/extracted_ipsw/Firmware/all_flash/all_flash.n81ap.production/"$component".n81ap.img3 bins/extracted_ipsw/"$component".release.n81 end
+			for i in bins/extracted_ipsw/Firmware/dfu/"$component".n81ap.RELEASE.dfu bins/extracted_ipsw/Firmware/all_flash/all_flash.n81ap.production/"$component".n81ap.img3 bins/extracted_ipsw/"$(echo $component | tr K k)".release.n81 end
 			do
 				if [ "$i" = end ]
 				then

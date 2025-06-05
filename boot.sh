@@ -64,3 +64,12 @@ do
 done
 
 p "Successfully booted to iBEC that has no verification checks"
+
+#TODO: load ramdisk
+
+p "Sending Apple's Device Tree"
+other_repos/libirecovery/tools/irecovery -f bins/decrypted_components/apple_decrypted_DeviceTree
+p "Sending Apple's Unmodified decrypted kernel"
+other_repos/libirecovery/tools/irecovery -f bins/decrypted_components/apple_decrypted_Kernelcache
+p "Sending the command to boot"
+other_repos/libirecovery/tools/irecovery -c bootx
