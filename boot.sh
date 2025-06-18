@@ -20,16 +20,24 @@ then
 	done
 
 	p "home..."
-	for i in $(seq 8); do
+	for i in $(seq 12); do
+		if [ "$i" = 12 ]
+		then
+			p 'failed to enter dfu'
+		fi
 		printf "%s " "$i"
-		sleep 1
+		sleep .5
+		if  lsusb | grep DFU\ Mode > /dev/null #FIXME
+		then
+			break
+		fi
+		sleep .5
+		if  lsusb | grep DFU\ Mode > /dev/null #FIXME
+		then
+			break
+		fi
 	done
 
-	if ! lsusb | grep DFU\ Mode > /dev/null #FIXME
-	then
-		p 'failed to enter dfu'
-		return 1
-	fi
 fi
 
 p 'Entering pwndfu with primepwn'
