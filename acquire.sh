@@ -205,8 +205,24 @@ then
 
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_RAMDISK" "$WORK_IN_PROGRESS_RAMDISK"
 	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" grow 30000000
-	#TODO: compile our own device_infos ( this comes from a newish project for brute forcing passcodes longer that 4 digits on device )
-	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add bins/device_infos Private/etc/rc.boot
+
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" rm /sbin/fsck
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" rm /sbin/fsck_hfs
+
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" untar /home/user/Legacy-iOS-Kit/resources/sshrd/ssh.tar
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/mods/private/etc/rc.boot private/etc/rc.boot
+
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/customhacks/bins/device_infos /var/root/device_infos
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/customhacks/bins/ioflashstoragekit /var/root/ioflashstoragekit
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/customhacks/bins/restored_external /var/root/restored_external
+
+	for i in /var/root/{ioflashstoragekit,device_infos,restored_external}  private/etc/rc.boot /sbin/launchd
+	do
+		other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" chmod 777 "$i"
+	done
+
+	#other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" rm /sbin/launchd
+#	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add bins/device_infos /sbin/fsck
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$WORK_IN_PROGRESS_RAMDISK" "$HACKED_RAMDISK" -t "$DECRYPTED_RAMDISK"
 fi
 
