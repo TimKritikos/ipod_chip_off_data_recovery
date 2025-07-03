@@ -189,11 +189,13 @@ then
 	DECRYPTED_KERNEL=bins/decrypted_components/apple_decrypted_Kernelcache
 	RAW_KERNEL=bins/hacked_components/KernelCache.raw
 	PATCHED_KERNEL=bins/hacked_components/KernelCache.patched
+	KERNEL_MYPATCHES=bins/hacked_components/KernelCache.my_patches
 	BOOTABLE_KERNEL=bins/hacked_components/KernelCache
 
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_KERNEL" "$RAW_KERNEL"
 	"$PYTHON2" other_repos/iphone-dataprotection/python_scripts/kernel_patcher.py "$RAW_KERNEL" "$PATCHED_KERNEL"
-	other_repos/xpwn/build/ipsw-patch/xpwntool "$PATCHED_KERNEL" "$BOOTABLE_KERNEL" -t "$DECRYPTED_KERNEL"
+	bspatch "$PATCHED_KERNEL" "$KERNEL_MYPATCHES" bins/no-crash-no-mount+others.bspatch
+	other_repos/xpwn/build/ipsw-patch/xpwntool "$KERNEL_MYPATCHES" "$BOOTABLE_KERNEL" -t "$DECRYPTED_KERNEL"
 
 	# Hack the ramdisk to run device_infos ASAP to get the key!
 
