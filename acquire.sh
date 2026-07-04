@@ -2,7 +2,7 @@
 set -eu
 
 ##IMPORTANT: CHANGE THIS:
-PYTHON2=~/python2.7_for_ios-data/AppRun
+PYTHON2=../python2.7_for_ios-data/AppRun
 # This is to run the scripts from iphone-dataprotection which use python2. I extracted the appimage off of somewhere and pip installed the required dependencies
 
 if ! which "$PYTHON2" > /dev/null
@@ -27,7 +27,7 @@ then
 	git clone https://github.com/libimobiledevice/libimobiledevice
 	cd libimobiledevice/
 	git checkout 0bf0f9e941c85d06ce4b5909d7a61b3a4f2a6a05
-	./autogen.sh
+	PKG_CONFIG_PATH=/usr/lib/pkgconfig/:$PKG_CONFIG_PATH ./autogen.sh
 	make -j3
 	cd ..
 fi
@@ -66,6 +66,8 @@ fi
 
 if ! [ -e xpwn ]
 then
+	export CMAKE_POLICY_VERSION_MINIMUM=3.5 #Added on the second data recovery attempt for ipod touch 5
+
 	git clone https://github.com/LukeeGD/xpwn
 	cd xpwn
 	git checkout d1d2d3da2081b197b2946f2699d68b2a4acfbfb2
@@ -193,8 +195,12 @@ then
 	BOOTABLE_KERNEL=bins/hacked_components/KernelCache
 
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_KERNEL" "$RAW_KERNEL"
+	#XXX: This will silently fail
 	"$PYTHON2" other_repos/iphone-dataprotection/python_scripts/kernel_patcher.py "$RAW_KERNEL" "$PATCHED_KERNEL"
+
 	bspatch "$PATCHED_KERNEL" "$KERNEL_MYPATCHES" bins/no-crash-no-mount+others.bspatch
+	#cp "$PATCHED_KERNEL" "$KERNEL_MYPATCHES"
+
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$KERNEL_MYPATCHES" "$BOOTABLE_KERNEL" -t "$DECRYPTED_KERNEL"
 
 	# Hack the ramdisk to run device_infos ASAP to get the key!
@@ -209,14 +215,14 @@ then
 	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" rm /sbin/fsck
 	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" rm /sbin/fsck_hfs
 
-	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" untar /home/user/Legacy-iOS-Kit/resources/sshrd/ssh.tar
-	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/mods/private/etc/rc.boot private/etc/rc.boot
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" untar ../Legacy-iOS-Kit/resources/sshrd/ssh.tar
+	#other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add ../mods/private/etc/rc.boot private/etc/rc.boot
 
-	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/customhacks/bins/device_infos /var/root/device_infos
-	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/customhacks/bins/ioflashstoragekit /var/root/ioflashstoragekit
-	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add /home/user/customhacks/bins/restored_external /var/root/restored_external
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add bins/device_infos /var/root/device_infos
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add bins/ioflashstoragekit /var/root/ioflashstoragekit
+	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add bins/restored_external /var/root/restored_external
 
-	for i in /var/root/{ioflashstoragekit,device_infos,restored_external}  private/etc/rc.boot /sbin/launchd
+	for i in /var/root/{ioflashstoragekit,device_infos,restored_external} /sbin/launchd
 	do
 		other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" chmod 777 "$i"
 	done
