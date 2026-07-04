@@ -93,6 +93,9 @@ then
 	#Patch kernel_patcher to also apply the IOFlashControllerUserClient::externalMethod patch #TODO: is the comment accurate ?
 	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-add-ipod4-settings.patch
 
+	#Fix _PE_i_can_has_debugger patch data for the ipod 4 kernel build
+	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-pe-can-has-debugger-ipod4.patch
+
 	cd ../
 fi
 

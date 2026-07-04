@@ -1,0 +1,13 @@
+diff --git a/python_scripts/kernel_patcher.py b/python_scripts/kernel_patcher.py
+index fec5e6d..d5cc321 100755
+--- a/python_scripts/kernel_patcher.py
++++ b/python_scripts/kernel_patcher.py
+@@ -57,7 +57,7 @@ def patch_IOFlashControllerUserClient_externalMethod(ipswname, kernel):
+ #thx to 0x56
+ patchs_ios6 = {
+     "IOAESAccelerator enable UID" : (h("B0 F5 FA 6F 00 F0 92 80"), h("B0 F5 FA 6F 00 20 00 20")),
+-    "_PE_i_can_has_debugger" : (h("80 B1 43 F2 BE 01 C0 F2"), h("01 20 70 47 BE 01 C0 F2")),
++    "_PE_i_can_has_debugger" : (h("80 B1 43 F6 4E 51 C0 F2"), h("01 20 70 47 BE 01 C0 F2")),
+
+     #prevent panic with nand-disable-driver bootarg (was kprintf in ios5)
+     "panic(AppleNANDFTL did not appear)" : (h("05 46 4D B9 58 48 78 44 0A F0 28 FE"), h("05 46 4D B9 58 48 78 44 00 20 00 20")),
