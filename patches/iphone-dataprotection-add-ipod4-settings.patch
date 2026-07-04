@@ -1,0 +1,20 @@
+diff --git a/python_scripts/kernel_patcher.py b/python_scripts/kernel_patcher.py
+index 9c6e4e9..fec5e6d 100755
+--- a/python_scripts/kernel_patcher.py
++++ b/python_scripts/kernel_patcher.py
+@@ -30,6 +30,7 @@ IOFC_PATCH_INFO = {
+     "iPhone3,1_6.0_10A403_Restore.ipsw": [0x4e98bd, 0x4e0984, 0xa8, 0x25cec4, 0xffd3c535],
+     "iPhone3,2_6.0_10A403_Restore.ipsw": [0x4e98bd, 0x4e0984, 0xa8, 0x25cec4, 0xffd3c535],
+     "iPhone3,3_6.0_10A403_Restore.ipsw": [0x79d8bd, 0x794984, 0xa8, 0x25cec4, 0xffa88535],
++    "ipod4": [0x7988a1, 0x78F964, 0xa8, 0x25e244, 0xFFA8E8D5],
+ 
+     #not supported by redsn0w yet
+     "iPhone3,1_7.0_11A465_Restore.ipsw": [0x9278a3, 0x91eac8, 0xa4, 0x8f6b0, 0xff72bbdd],
+@@ -38,6 +39,7 @@ IOFC_PATCH_INFO = {
+ IOFC_patch = h("F0 B5 96 B0 DF F8 9C B0 FB 44 04 46 D6 69 00 25 D2 F8 30 70 01 22 30 68 01 90 70 68 00 90 01 20 03 90 02 95 71 7A 11 F0 01 0F 1C BF 09 21 02 91 05 95 08 95 11 95 0F 95 0D 95 04 90 01 A8 06 90 68 46 0B 90 D6 E9 03 01 E3 6F D8 47 07 90 70 69 08 B9 2E 46 11 E0 B0 69 01 22 0D 90 70 69 B1 69 E3 6F D8 47 29 46 05 46 2A 68 D2 F8 98 20 90 47 06 46 31 68 89 6B 88 47 0C 90 A0 6F 02 AA 01 68 D1 F8 44 33 00 21 98 47 C7 F8 00 00 07 98 01 68 4C 69 A0 47 1E B1 30 46 A0 47 28 46 A0 47 00 20 16 B0 F0 BD")
+ 
+ def patch_IOFlashControllerUserClient_externalMethod(ipswname, kernel):
++    ipswname="ipod4"
+     if not IOFC_PATCH_INFO.has_key(ipswname):
+         print "Unsupported IPSW for IOFlashControllerUserClient::externalMethod patch !"
+         return kernel

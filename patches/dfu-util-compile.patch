@@ -1,0 +1,74 @@
+diff --git a/dfu-util/dfu.h b/dfu-util/dfu.h
+index be88a32..621e2a0 100644
+--- a/dfu-util/dfu.h
++++ b/dfu-util/dfu.h
+@@ -104,5 +104,4 @@ char* dfu_state_to_string( int state );
+ 
+ const char *dfu_status_to_string(int status);
+ 
+-int debug;
+ #endif
+diff --git a/dfu-util/sam7dfu.c b/dfu-util/sam7dfu.c
+index a723512..6cb90f1 100644
+--- a/dfu-util/sam7dfu.c
++++ b/dfu-util/sam7dfu.c
+@@ -20,6 +20,7 @@
+ #define O_BINARY 0
+ #endif
+ 
++extern int debug;
+ /*
+  *  * CRC32 code ripped off (and adapted) from the zlib-1.1.3 distribution by Jean-loup Gailly and Mark Adler.
+  *   *
+diff --git a/ipsw-patch/libxpwn.c b/ipsw-patch/libxpwn.c
+index fa5b3f2..deec66e 100644
+--- a/ipsw-patch/libxpwn.c
++++ b/ipsw-patch/libxpwn.c
+@@ -4,7 +4,7 @@
+ #include <string.h>
+ 
+ LogMessageCallback logCallback;
+-char endianness;
++ char endianness;
+ int GlobalLogLevel;
+ 
+ int Img3DecryptLast = TRUE; /* FALSE for <= 7a341, TRUE for >= 7c144 */
+diff --git a/ipsw-patch/validate.c b/ipsw-patch/validate.c
+index b1cf457..766524b 100644
+--- a/ipsw-patch/validate.c
++++ b/ipsw-patch/validate.c
+@@ -298,9 +298,9 @@ cryptoMagic(X509 *x0, X509 *x1, X509 *x2,
+ 					X509_STORE_CTX *ctx = X509_STORE_CTX_new();
+ 					X509_STORE_add_cert(store, x0);
+ 					X509_STORE_add_cert(store, x1);
+-					if (X509_STORE_CTX_init(&ctx, store, x2, 0) == 1) {
+-						X509_STORE_CTX_set_flags(&ctx, X509_V_FLAG_IGNORE_CRITICAL);
+-						if (X509_verify_cert(&ctx) == 1) {
++					if (X509_STORE_CTX_init(ctx, store, x2, 0) == 1) {
++						X509_STORE_CTX_set_flags(ctx, X509_V_FLAG_IGNORE_CRITICAL);
++						if (X509_verify_cert(ctx) == 1) {
+ 							unsigned char md[SHA_DIGEST_LENGTH];
+ 							if (partialDigest) {
+ 								// XXX we need to flip ECID back before hashing
+@@ -311,7 +311,7 @@ cryptoMagic(X509 *x0, X509 *x1, X509 *x2,
+ 							}
+ 							rv = RSA_verify(NID_sha1, md, SHA_DIGEST_LENGTH, rsaSigData, rsaSigLen, rsa);
+ 						}
+-						X509_STORE_CTX_cleanup(&ctx);
++						X509_STORE_CTX_cleanup(ctx);
+ 					}
+ 					X509_STORE_free(store);
+ 				}
+diff --git a/xpwn/src/xpwn.cpp b/xpwn/src/xpwn.cpp
+index 00635e9..4f0c9cf 100644
+--- a/xpwn/src/xpwn.cpp
++++ b/xpwn/src/xpwn.cpp
+@@ -11,7 +11,7 @@
+ using namespace ibooter;
+ using namespace std;
+ 
+-char endianness;
++extern char endianness;
+ 
+ void TestByteOrder()
+ {

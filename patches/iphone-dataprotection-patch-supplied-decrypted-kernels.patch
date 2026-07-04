@@ -1,0 +1,123 @@
+diff --git a/python_scripts/kernel_patcher.py b/python_scripts/kernel_patcher.py
+index ad2b6bd..9c6e4e9 100755
+--- a/python_scripts/kernel_patcher.py
++++ b/python_scripts/kernel_patcher.py
+@@ -110,20 +110,21 @@ class IPSWkeys(object):
+         buildi = manifest["BuildIdentities"][0]
+         dc = buildi["Info"]["DeviceClass"]
+         build = "%s_%s_%s" % (devices.get(dc,dc), manifest["ProductVersion"], manifest["ProductBuildVersion"])
+-        try:
+-            rs = plistlib.readPlist("Keys.plist")
+-        except:
+-            raise Exception("Get Keys.plist from redsn0w and place it in the current directory")
+-        for k in rs["Keys"]:
+-            if k["Build"] == build:
+-                self.keys = k
+-                break
++        #try:
++        #    rs = plistlib.readPlist("Keys.plist")
++        #except:
++        #    raise Exception("Get Keys.plist from redsn0w and place it in the current directory")
++        #for k in rs["Keys"]:
++        #    if k["Build"] == build:
++        #        self.keys = k
++        #        break
+ 
+     def getKeyIV(self, filename):
+-        if not self.keys.has_key(filename):
+-            return None, None
+-        k = self.keys[filename]
+-        return k.get("Key",""), k.get("IV","")
++        #if not self.keys.has_key(filename):
++        #    return None, None
++        #k = self.keys[filename]
++        #return k.get("Key",""), k.get("IV","")
++        return "9ad44a5686bfb9604cf9a519fd6b6ad3e443184d00052fc2291d442363f94863","d8ab4ff8b9e5c9af89b7c77842eb80bb"
+     
+ def decryptImg3(blob, key, iv):
+     assert blob[:4] == "3gmI", "Img3 magic tag"
+@@ -140,40 +141,22 @@ def decryptImg3(blob, key, iv):
+     return AES.new(key, AES.MODE_CBC, iv).decrypt(data)[:real_size]
+ 
+ 
+-def main(ipswname, options):
+-    ipsw = zipfile.ZipFile(ipswname)
+-    ipswname = os.path.basename(ipswname)
+-    manifest = plistlib.readPlistFromString(ipsw.read("BuildManifest.plist"))
+-    kernelname = manifest["BuildIdentities"][0]["Manifest"]["KernelCache"]["Info"]["Path"]
+-    devclass = manifest["BuildIdentities"][0]["Info"]["DeviceClass"]
+-    kernel = ipsw.read(kernelname)
+-    keys = IPSWkeys(manifest)
+-    
+-    key,iv = keys.getKeyIV(kernelname)
+-    
+-    if key == None:
+-        print "No keys found for kernel"
+-        return -1
+-    
+-    print "Decrypting %s" % kernelname
+-    kernel = decryptImg3(kernel, key.decode("hex"), iv.decode("hex"))
+-
+-    assert kernel.startswith("complzss"), "Decrypted kernelcache does not start with \"complzss\" => bad key/iv ?"
+-    
+-    print "Unpacking ..."
+-    kernel = decompress_lzss(kernel)
++def main(ipswname,outkernel, options):
++    with open(ipswname, mode='rb') as file: # b is important -> binary
++        kernel = file.read()
+     assert kernel.startswith("\xCE\xFA\xED\xFE"), "Decompressed kernelcache does not start with 0xFEEDFACE"
++    devclass=""
+     
+     patchs = patchs_ios5
+-    if devclass in ["n82ap", "n72ap"]:
+-        print "Using ARMv6 kernel patches"
+-        patchs = patchs_armv6
+-    elif manifest["ProductVersion"].startswith("4."):
+-        print "Using iOS 4 kernel patches"
+-        patchs = patchs_ios4
+-    elif manifest["ProductVersion"].startswith("6."):
+-        print "Using iOS 6 kernel patches"
+-        patchs = patchs_ios6
++    #if devclass in ["n82ap", "n72ap"]:
++    #    print "Using ARMv6 kernel patches"
++    #    patchs = patchs_armv6
++    #elif manifest["ProductVersion"].startswith("4."):
++    #    print "Using iOS 4 kernel patches"
++    #    patchs = patchs_ios4
++    #elif manifest["ProductVersion"].startswith("6."):
++    print "Using iOS 6 kernel patches"
++    patchs = patchs_ios6
+ 
+     if options.fixnand:
+         if patchs != patchs_ios4:
+@@ -194,17 +177,18 @@ def main(ipswname, options):
+         else:
+             kernel = kernel.replace(s,r)
+ 
+-    if patchfail:
+-        return -1
+-    if manifest["ProductVersion"] >= "5.0":
+-        kernel = patch_IOFlashControllerUserClient_externalMethod(ipswname, kernel)
++#    if patchfail:
++#        return -1
++#    if manifest["ProductVersion"] >= "5.0":
++    kernel = patch_IOFlashControllerUserClient_externalMethod(ipswname, kernel)
+ 
+-    ipswname = ipswname.replace("_Restore.ipsw", "")
+-    outkernel = "data/boot/kernel_%s.patched" % ipswname
++#    ipswname = ipswname.replace("_Restore.ipsw", "")
++ #   outkernel = "data/boot/kernel_%s.patched" % ipswname
+     f = open(outkernel, "wb")
+     f.write(kernel)
+     f.close()
+     print "Patched kernel written to %s" % outkernel
++    exit(0)
+     
+     ramdiskname = manifest["BuildIdentities"][0]["Manifest"]["RestoreRamDisk"]["Info"]["Path"]
+     key,iv = keys.getKeyIV("Ramdisk")
+@@ -236,4 +220,4 @@ if __name__ == "__main__":
+     if len(args) < 1:
+         parser.print_help()
+     else:
+-        exit(main(args[0], options))
++        exit(main(args[0],args[1], options))
