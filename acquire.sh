@@ -92,6 +92,7 @@ then
 	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-patch-supplied-decrypted-kernels.patch
 	#Patch kernel_patcher to also apply the IOFlashControllerUserClient::externalMethod patch #TODO: is the comment accurate ?
 	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-add-ipod4-settings.patch
+
 	cd ../
 fi
 
@@ -198,8 +199,17 @@ then
 	BOOTABLE_KERNEL=generated_bins/hacked_components/KernelCache
 
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_KERNEL" "$RAW_KERNEL"
-	#XXX: This will silently fail
-	"$PYTHON2" other_repos/iphone-dataprotection/python_scripts/kernel_patcher.py "$RAW_KERNEL" "$PATCHED_KERNEL"
+
+	TMPFILE=$(mktemp)
+
+	"$PYTHON2" other_repos/iphone-dataprotection/python_scripts/kernel_patcher.py "$RAW_KERNEL" "$PATCHED_KERNEL" | tee "$TMPFILE"
+	if grep 'do not boot that kernel it wont work' "$TMPFILE" > /dev/null
+	then
+		echo It seems that the kernel patching script failed
+		rm "$TMPFILE"
+		exit 1
+	fi
+	rm "$TMPFILE"
 
 	bspatch "$PATCHED_KERNEL" "$KERNEL_MYPATCHES" bins/no-crash-no-mount+others.bspatch
 	#cp "$PATCHED_KERNEL" "$KERNEL_MYPATCHES"
@@ -236,4 +246,4 @@ then
 fi
 
 
-echo All fetched correctly
+echo Finished getting all parts. Note, if you now re-run the script and something failed the first time it could still be incomplete
