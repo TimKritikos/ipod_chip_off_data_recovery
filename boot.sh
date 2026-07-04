@@ -5,11 +5,11 @@ p(){
 	printf "\e[31m%s\e[0m\n" "$@"
 }
 
-IBSS=bins/hacked_components/hacked_iBSS
-IBEC=bins/hacked_components/hacked_iBEC
-RAMDISK=bins/hacked_components/Ramdisk
-DEVICE_TREE=bins/decrypted_components/apple_decrypted_DeviceTree
-KERNEL=bins/hacked_components/KernelCache
+IBSS=generated_bins/hacked_components/hacked_iBSS
+IBEC=generated_bins/hacked_components/hacked_iBEC
+RAMDISK=generated_bins/hacked_components/Ramdisk
+DEVICE_TREE=generated_bins/decrypted_components/apple_decrypted_DeviceTree
+KERNEL=generated_bins/hacked_components/KernelCache
 
 if ! [ -e "$IBSS" ] || ! [ -e "$IBEC" ] || ! [ -e "$RAMDISK" ] || ! [ -e "$DEVICE_TREE" ] || ! [ -e "$KERNEL" ]
 then

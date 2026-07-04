@@ -94,11 +94,11 @@ fi
 
 cd ..
 
-if ! [ -e bins ]
+if ! [ -e generated_bins ]
 then
-	mkdir bins
+	mkdir generated_bins
 fi
-cd bins
+cd generated_bins
 
 ##########################################
 ## Get Apple's IPSW that has the bootloader kernel and ramdisk
@@ -126,9 +126,9 @@ cd ..
 
 #[input file location in ipsw] [name in keyfile]
 decrypt(){
-	infile=bins/extracted_ipsw/"$1"
+	infile=generated_bins/extracted_ipsw/"$1"
 	name="$2"
-	outfile=bins/decrypted_components/apple_decrypted_"$name"
+	outfile=generated_bins/decrypted_components/apple_decrypted_"$name"
 
 	iv=$( jq -r '.keys[] | select(.image == "'"$name"'") | .iv' < "$json_keyfile" )
 	key=$( jq -r '.keys[] | select(.image == "'"$name"'") | .key' < "$json_keyfile" )
@@ -141,9 +141,9 @@ decrypt(){
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$infile" "$outfile" -iv "$iv" -k "$key" -decrypt
 }
 
-if ! [ -e bins/decrypted_components ]
+if ! [ -e generated_bins/decrypted_components ]
 then
-	mkdir bins/decrypted_components
+	mkdir generated_bins/decrypted_components
 
 	ramdisk_filename=$(jq < builds/10B500/index.html '.keys[] | select(.image=="RestoreRamdisk").filename' -r)
 
@@ -159,18 +159,18 @@ fi
 ## Remove checks from the iBSS bootloader
 ##########################################
 
-if ! [ -e bins/hacked_components ]
+if ! [ -e generated_bins/hacked_components ]
 then
-	mkdir bins/hacked_components
+	mkdir generated_bins/hacked_components
 
 	# Remove security checks from iBSS and iBEC
 
 	for component in iBSS iBEC
 	do
-		DECRYPTED_iBSS=bins/decrypted_components/apple_decrypted_"$component"
-		      RAW_iBSS=bins/hacked_components/apple_decrypted_"$component".raw
-		   HACKED_iBSS=bins/hacked_components/hacked_"$component".raw
-		 BOOTABLE_iBSS=bins/hacked_components/hacked_"$component"
+		DECRYPTED_iBSS=generated_bins/decrypted_components/apple_decrypted_"$component"
+		      RAW_iBSS=generated_bins/hacked_components/apple_decrypted_"$component".raw
+		   HACKED_iBSS=generated_bins/hacked_components/hacked_"$component".raw
+		 BOOTABLE_iBSS=generated_bins/hacked_components/hacked_"$component"
 
 		other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_iBSS" "$RAW_iBSS"
 
@@ -188,11 +188,11 @@ then
 
 	# Patch the kernel, i think this is to allow us to read the DKey and access the AES engine
 
-	DECRYPTED_KERNEL=bins/decrypted_components/apple_decrypted_Kernelcache
-	RAW_KERNEL=bins/hacked_components/KernelCache.raw
-	PATCHED_KERNEL=bins/hacked_components/KernelCache.patched
-	KERNEL_MYPATCHES=bins/hacked_components/KernelCache.my_patches
-	BOOTABLE_KERNEL=bins/hacked_components/KernelCache
+	DECRYPTED_KERNEL=generated_bins/decrypted_components/apple_decrypted_Kernelcache
+	RAW_KERNEL=generated_bins/hacked_components/KernelCache.raw
+	PATCHED_KERNEL=generated_bins/hacked_components/KernelCache.patched
+	KERNEL_MYPATCHES=generated_bins/hacked_components/KernelCache.my_patches
+	BOOTABLE_KERNEL=generated_bins/hacked_components/KernelCache
 
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_KERNEL" "$RAW_KERNEL"
 	#XXX: This will silently fail
@@ -205,9 +205,9 @@ then
 
 	# Hack the ramdisk to run device_infos ASAP to get the key!
 
-	DECRYPTED_RAMDISK=bins/decrypted_components/apple_decrypted_RestoreRamdisk
-	WORK_IN_PROGRESS_RAMDISK=bins/hacked_components/Ramdisk.raw
-	HACKED_RAMDISK=bins/hacked_components/Ramdisk
+	DECRYPTED_RAMDISK=generated_bins/decrypted_components/apple_decrypted_RestoreRamdisk
+	WORK_IN_PROGRESS_RAMDISK=generated_bins/hacked_components/Ramdisk.raw
+	HACKED_RAMDISK=generated_bins/hacked_components/Ramdisk
 
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_RAMDISK" "$WORK_IN_PROGRESS_RAMDISK"
 	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" grow 30000000
@@ -228,7 +228,7 @@ then
 	done
 
 	#other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" rm /sbin/launchd
-#	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add bins/device_infos /sbin/fsck
+#	other_repos/xpwn/build/hfs/hfsplus "$WORK_IN_PROGRESS_RAMDISK" add generated_bins/device_infos /sbin/fsck
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$WORK_IN_PROGRESS_RAMDISK" "$HACKED_RAMDISK" -t "$DECRYPTED_RAMDISK"
 fi
 
