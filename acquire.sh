@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eu
 
 help(){
@@ -50,7 +50,7 @@ else
 fi
 
 
-if [ "$TARGET_DEVICE" != $FOUND_GENERATED_BINS_TARGET_DEVICE ] || [ "$TARGET_DEVICE" != $FOUND_OTHER_REPOS_TARGET_DEVICE ]
+if [ "$TARGET_DEVICE" != "$FOUND_GENERATED_BINS_TARGET_DEVICE" ] || [ "$TARGET_DEVICE" != "$FOUND_OTHER_REPOS_TARGET_DEVICE" ]
 then
 	echo other_repos or generated_bins was build targetting another device.
 	echo run ./clean.sh and rebuild from scratch
