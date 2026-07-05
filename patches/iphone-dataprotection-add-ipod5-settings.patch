@@ -1,13 +1,12 @@
 diff --git a/python_scripts/kernel_patcher.py b/python_scripts/kernel_patcher.py
-index 9c6e4e9..fec5e6d 100755
+index ad2b6bd..9869939 100755
 --- a/python_scripts/kernel_patcher.py
 +++ b/python_scripts/kernel_patcher.py
 @@ -30,6 +30,7 @@ IOFC_PATCH_INFO = {
      "iPhone3,1_6.0_10A403_Restore.ipsw": [0x4e98bd, 0x4e0984, 0xa8, 0x25cec4, 0xffd3c535],
      "iPhone3,2_6.0_10A403_Restore.ipsw": [0x4e98bd, 0x4e0984, 0xa8, 0x25cec4, 0xffd3c535],
      "iPhone3,3_6.0_10A403_Restore.ipsw": [0x79d8bd, 0x794984, 0xa8, 0x25cec4, 0xffa88535],
-+    "ipod5":                             [0x6278A1, 0x78F964, 0xa8, 0x25e244, 0xFFA8E8D5],
-
++    "ipod5":                             [0x6278A1, 0x61E964, 0xa8, 0x25C9C4, 0xFFBFE055],
  
      #not supported by redsn0w yet
      "iPhone3,1_7.0_11A465_Restore.ipsw": [0x9278a3, 0x91eac8, 0xa4, 0x8f6b0, 0xff72bbdd],

@@ -144,19 +144,21 @@ then
 	git clone https://github.com/nabla-c0d3/iphone-dataprotection
 	cd iphone-dataprotection
 	git checkout 572dd5cd8c07f5f14f7ea9488041031dd22a26bb #shouldn't be necessary project is read only but just to make sure
-	#Patch kernel_patcher.py to take in decrypted raw kernels and patch them
-	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-patch-supplied-decrypted-kernels.patch
 
-	#Patch kernel_patcher to also apply the IOFlashControllerUserClient::externalMethod patch #TODO: is the comment accurate ?
 	if [ "$TARGET_DEVICE" = ipod4 ]
 	then
 		patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-add-ipod4-settings.patch
+
+		patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-pe-can-has-debugger-ipod4.patch
 	else
 		patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-add-ipod5-settings.patch
+
+		patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-pe-can-has-debugger-ipod5.patch
 	fi
 
-	#Fix _PE_i_can_has_debugger patch data for the ipod 4 kernel build
-	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-pe-can-has-debugger-ipod4.patch
+	#Patch kernel_patcher.py to take in decrypted raw kernels and patch them
+	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-patch-supplied-decrypted-kernels.patch
+
 
 	cd ../
 fi
