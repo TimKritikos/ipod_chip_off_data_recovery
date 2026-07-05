@@ -1,6 +1,62 @@
 #!/bin/sh
 set -eu
 
+help(){
+	echo Usage "$0" --dev ipod4/ipod5
+}
+
+if [ $# != 2 ]
+then
+	help
+	exit 1
+fi
+
+if [ "$1" != '--dev' ]
+then
+	help
+	exit 1
+fi
+
+case "$2" in
+	"ipod4")
+		BUILD=10B500
+		DEVICE_MODEL=n81
+		;;
+	"ipod5")
+		BUILD=10B329
+		DEVICE_MODEL=n78
+		;;
+	*)
+		help
+		exit 1
+		;;
+esac
+
+TARGET_DEVICE=$2
+
+
+if [ -d other_repos ]
+then
+	FOUND_OTHER_REPOS_TARGET_DEVICE=$(cat other_repos/device.txt )
+else
+	FOUND_OTHER_REPOS_TARGET_DEVICE=$2
+fi
+
+if [ -d generate_bins ]
+then
+	FOUND_GENERATED_BINS_TARGET_DEVICE=$(cat generate_bins/device.txt )
+else
+	FOUND_GENERATED_BINS_TARGET_DEVICE=$2
+fi
+
+
+if [ "$TARGET_DEVICE" != $FOUND_GENERATED_BINS_TARGET_DEVICE ] || [ "$TARGET_DEVICE" != $FOUND_OTHER_REPOS_TARGET_DEVICE ]
+then
+	echo other_repos or generated_bins was build targetting another device.
+	echo run ./clean.sh and rebuild from scratch
+	exit 1
+fi
+
 REPO_ROOT=$(realpath "$(dirname "$0")")
 cd "$REPO_ROOT"
 
@@ -14,7 +70,6 @@ then
 fi
 
 
-BUILD=10B500
 ipod4_ipsw=$(cat builds/"$BUILD"/url)
 json_keyfile=builds/"$BUILD"/index.html
 
@@ -22,6 +77,7 @@ json_keyfile=builds/"$BUILD"/index.html
 if ! [ -e other_repos ]
 then
 	mkdir other_repos
+	echo "$TARGET_DEVICE" > other_repos/device.txt
 fi
 cd other_repos
 
@@ -90,8 +146,14 @@ then
 	git checkout 572dd5cd8c07f5f14f7ea9488041031dd22a26bb #shouldn't be necessary project is read only but just to make sure
 	#Patch kernel_patcher.py to take in decrypted raw kernels and patch them
 	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-patch-supplied-decrypted-kernels.patch
+
 	#Patch kernel_patcher to also apply the IOFlashControllerUserClient::externalMethod patch #TODO: is the comment accurate ?
-	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-add-ipod4-settings.patch
+	if [ "$TARGET_DEVICE" = ipod4 ]
+	then
+		patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-add-ipod4-settings.patch
+	else
+		patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-add-ipod5-settings.patch
+	fi
 
 	#Fix _PE_i_can_has_debugger patch data for the ipod 4 kernel build
 	patch -p1 < "$REPO_ROOT"/patches/iphone-dataprotection-pe-can-has-debugger-ipod4.patch
@@ -104,6 +166,7 @@ cd ..
 if ! [ -e generated_bins ]
 then
 	mkdir generated_bins
+	echo "$TARGET_DEVICE" > generated_bins/device.txt
 fi
 cd generated_bins
 
@@ -152,13 +215,13 @@ if ! [ -e generated_bins/decrypted_components ]
 then
 	mkdir generated_bins/decrypted_components
 
-	ramdisk_filename=$(jq < builds/10B500/index.html '.keys[] | select(.image=="RestoreRamdisk").filename' -r)
+	ramdisk_filename=$(jq < builds/"$BUILD"/index.html '.keys[] | select(.image=="RestoreRamdisk").filename' -r)
 
-	decrypt Firmware/dfu/iBSS.n81ap.RELEASE.dfu                                    iBSS
-	decrypt Firmware/dfu/iBEC.n81ap.RELEASE.dfu                                    iBEC
-	decrypt Firmware/all_flash/all_flash.n81ap.production/DeviceTree.n81ap.img3    DeviceTree
-	decrypt kernelcache.release.n81                                                Kernelcache
-	decrypt "$ramdisk_filename"                                                    RestoreRamdisk
+	decrypt Firmware/dfu/iBSS."$DEVICE_MODEL"ap.RELEASE.dfu                                                iBSS
+	decrypt Firmware/dfu/iBEC."$DEVICE_MODEL"ap.RELEASE.dfu                                                iBEC
+	decrypt Firmware/all_flash/all_flash."$DEVICE_MODEL"ap.production/DeviceTree."$DEVICE_MODEL"ap.img3    DeviceTree
+	decrypt kernelcache.release."$DEVICE_MODEL"                                                            Kernelcache
+	decrypt "$ramdisk_filename"                                                                            RestoreRamdisk
 
 fi
 
@@ -209,13 +272,21 @@ then
 	if grep 'do not boot that kernel it wont work' "$TMPFILE" > /dev/null
 	then
 		echo It seems that the kernel patching script failed
-		rm "$TMPFILE"
-		exit 1
+		if [ "$TARGET_DEVICE" = ipod4 ] #TODO Remove this once we get ipod5 patching correctly
+		then
+			rm "$TMPFILE"
+			exit 1
+		fi
 	fi
 	rm "$TMPFILE"
 
-	bspatch "$PATCHED_KERNEL" "$KERNEL_MYPATCHES" bins/no-crash-no-mount+others.bspatch
-	#cp "$PATCHED_KERNEL" "$KERNEL_MYPATCHES"
+	#We don't have a version of this patch for ipod5
+	if [ "$TARGET_DEVICE" = ipod4 ]
+	then
+		bspatch "$PATCHED_KERNEL" "$KERNEL_MYPATCHES" bins/no-crash-no-mount+others.bspatch
+	else
+		cp "$PATCHED_KERNEL" "$KERNEL_MYPATCHES"
+	fi
 
 	other_repos/xpwn/build/ipsw-patch/xpwntool "$KERNEL_MYPATCHES" "$BOOTABLE_KERNEL" -t "$DECRYPTED_KERNEL"
 
