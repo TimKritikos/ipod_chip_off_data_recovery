@@ -266,7 +266,7 @@ then
 	KERNEL_MYPATCHES=generated_bins/hacked_components/KernelCache.my_patches
 	BOOTABLE_KERNEL=generated_bins/hacked_components/KernelCache
 
-	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_KERNEL" "$RAW_KERNEL"
+	other_repos/xpwn/build/ipsw-patch/xpwntool "$DECRYPTED_KERNEL" "$RAW_KERNEL" #TODO: this might be useless
 
 	TMPFILE=$(mktemp)
 

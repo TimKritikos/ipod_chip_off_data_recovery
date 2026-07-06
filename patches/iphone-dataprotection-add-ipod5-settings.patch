@@ -6,7 +6,7 @@ index ad2b6bd..9869939 100755
      "iPhone3,1_6.0_10A403_Restore.ipsw": [0x4e98bd, 0x4e0984, 0xa8, 0x25cec4, 0xffd3c535],
      "iPhone3,2_6.0_10A403_Restore.ipsw": [0x4e98bd, 0x4e0984, 0xa8, 0x25cec4, 0xffd3c535],
      "iPhone3,3_6.0_10A403_Restore.ipsw": [0x79d8bd, 0x794984, 0xa8, 0x25cec4, 0xffa88535],
-+    "ipod5":                             [0x6278A1, 0x61E964, 0xa8, 0x25C9C4, 0xFFBFE055],
++    "ipod5":                             [0x6278A1, 0x61E964, 0x14A, 0x25C9C4, 0xFFBFE055],
  
      #not supported by redsn0w yet
      "iPhone3,1_7.0_11A465_Restore.ipsw": [0x9278a3, 0x91eac8, 0xa4, 0x8f6b0, 0xff72bbdd],
